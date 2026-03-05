@@ -151,3 +151,97 @@ class SuiteRoom extends Room {
         return "Suite Room";
     }
 }
+/**
+ * Book My Stay App - Use Case 3
+ *
+ * This class demonstrates centralized room inventory management using a HashMap.
+ * It replaces scattered availability variables with a single, consistent data structure,
+ * ensuring fast access, controlled updates, and a single source of truth for room availability.
+ *
+ * Key Concepts:
+ * - HashMap for centralized inventory
+ * - Encapsulation of inventory logic
+ * - Single source of truth for room availability
+ * - Scalable design for adding new room types
+ *
+ * Version: 3.1
+ */
+import java.util.HashMap;
+import java.util.Map;
+
+public class UseCase3InventorySetup {
+
+    public static void main(String[] args) {
+        System.out.println("=== Welcome to Book My Stay App (v3.1) ===\n");
+
+        // Initialize inventory
+        RoomInventory inventory = new RoomInventory();
+        inventory.registerRoomType("Single Room", 5);
+        inventory.registerRoomType("Double Room", 3);
+        inventory.registerRoomType("Suite Room", 2);
+
+        // Display current inventory
+        inventory.displayInventory();
+
+        // Simulate updates
+        System.out.println("\nBooking 1 Single Room...");
+        inventory.bookRoom("Single Room");
+
+        System.out.println("Booking 1 Suite Room...");
+        inventory.bookRoom("Suite Room");
+
+        System.out.println("\nUpdated Inventory:");
+        inventory.displayInventory();
+    }
+}
+
+/**
+ * RoomInventory class encapsulates availability data and operations.
+ */
+class RoomInventory {
+
+    private Map<String, Integer> inventory;
+
+    public RoomInventory() {
+        inventory = new HashMap<>();
+    }
+
+    /**
+     * Register a room type with initial availability
+     */
+    public void registerRoomType(String roomType, int availableCount) {
+        inventory.put(roomType, availableCount);
+    }
+
+    /**
+     * Book a room if available
+     */
+    public boolean bookRoom(String roomType) {
+        int available = inventory.getOrDefault(roomType, 0);
+        if (available > 0) {
+            inventory.put(roomType, available - 1);
+            System.out.println(roomType + " booked successfully!");
+            return true;
+        } else {
+            System.out.println(roomType + " is fully booked!");
+            return false;
+        }
+    }
+
+    /**
+     * Get current availability of a room type
+     */
+    public int getAvailability(String roomType) {
+        return inventory.getOrDefault(roomType, 0);
+    }
+
+    /**
+     * Display the current inventory
+     */
+    public void displayInventory() {
+        System.out.println("Current Room Availability:");
+        for (Map.Entry<String, Integer> entry : inventory.entrySet()) {
+            System.out.println(entry.getKey() + ": " + entry.getValue() + " rooms available");
+        }
+    }
+}
