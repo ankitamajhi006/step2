@@ -379,3 +379,93 @@ class SuiteRoom extends Room {
     public SuiteRoom() { super(3, 50, 150.0); }
     public String getRoomType() { return "Suite Room"; }
 }
+/**
+ * Book My Stay App - Use Case 5
+ *
+ * This class demonstrates how booking requests are received and
+ * stored in a FIFO queue to ensure fair, first-come-first-served handling.
+ *
+ * Version: 5.0
+ */
+
+import java.util.LinkedList;
+import java.util.Queue;
+
+public class UseCase5BookingRequestQueue {
+
+    public static void main(String[] args) {
+        System.out.println("=== Welcome to Book My Stay App (Booking Queue v5.0) ===\n");
+
+        // Initialize the booking queue
+        BookingQueue bookingQueue = new BookingQueue();
+
+        // Sample booking requests
+        bookingQueue.addRequest(new Reservation("Alice", "Single Room"));
+        bookingQueue.addRequest(new Reservation("Bob", "Double Room"));
+        bookingQueue.addRequest(new Reservation("Charlie", "Suite Room"));
+        bookingQueue.addRequest(new Reservation("David", "Single Room"));
+
+        // Display queued requests
+        bookingQueue.displayQueue();
+    }
+}
+
+/**
+ * Reservation represents a guest's intent to book a room
+ */
+class Reservation {
+    private String guestName;
+    private String roomType;
+
+    public Reservation(String guestName, String roomType) {
+        this.guestName = guestName;
+        this.roomType = roomType;
+    }
+
+    public String getGuestName() {
+        return guestName;
+    }
+
+    public String getRoomType() {
+        return roomType;
+    }
+
+    @Override
+    public String toString() {
+        return guestName + " requests " + roomType;
+    }
+}
+
+/**
+ * BookingQueue manages reservation requests in FIFO order
+ */
+class BookingQueue {
+
+    private Queue<Reservation> queue;
+
+    public BookingQueue() {
+        queue = new LinkedList<>();
+    }
+
+    /**
+     * Add a booking request to the queue
+     */
+    public void addRequest(Reservation reservation) {
+        queue.offer(reservation); // enqueue
+        System.out.println("Added request: " + reservation);
+    }
+
+    /**
+     * Display all queued requests without modifying the queue
+     */
+    public void displayQueue() {
+        System.out.println("\nCurrent Booking Queue (First-Come-First-Served):\n");
+        if (queue.isEmpty()) {
+            System.out.println("No booking requests in the queue.");
+            return;
+        }
+        for (Reservation r : queue) {
+            System.out.println(r);
+        }
+    }
+}
