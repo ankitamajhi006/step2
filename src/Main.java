@@ -245,3 +245,137 @@ class RoomInventory {
         }
     }
 }
+/**
+ * Book My Stay App - Use Case 4
+ *
+ * This class demonstrates how guests can search for available rooms
+ * without altering system state. It reinforces safe data access,
+ * separation of concerns, and read-only operations.
+ *
+ * Version: 4.0
+ */
+
+import java.util.Map;
+
+public class UseCase4RoomSearch {
+
+    public static void main(String[] args) {
+        System.out.println("=== Welcome to Book My Stay App (Room Search v4.0) ===\n");
+
+        // Initialize inventory
+        RoomInventory inventory = new RoomInventory();
+        inventory.registerRoomType("Single Room", 5);
+        inventory.registerRoomType("Double Room", 3);
+        inventory.registerRoomType("Suite Room", 0); // Suite fully booked
+
+        // Initialize room objects
+        Room[] rooms = { new SingleRoom(), new DoubleRoom(), new SuiteRoom() };
+
+        // Search for available rooms
+        RoomSearchService searchService = new RoomSearchService(inventory);
+        searchService.displayAvailableRooms(rooms);
+    }
+}
+
+/**
+ * RoomSearchService provides read-only access to room availability and details.
+ */
+class RoomSearchService {
+
+    private RoomInventory inventory;
+
+    public RoomSearchService(RoomInventory inventory) {
+        this.inventory = inventory;
+    }
+
+    /**
+     * Display rooms with availability > 0
+     */
+    public void displayAvailableRooms(Room[] rooms) {
+        System.out.println("Available Rooms for Booking:\n");
+
+        boolean anyAvailable = false;
+
+        for (Room room : rooms) {
+            int available = inventory.getAvailability(room.getRoomType());
+            if (available > 0) {
+                anyAvailable = true;
+                System.out.println(room.getRoomType() + ":");
+                System.out.println("Beds: " + room.getNumberOfBeds());
+                System.out.println("Size: " + room.getSize() + " sqm");
+                System.out.println("Price per night: $" + room.getPrice());
+                System.out.println("Rooms Available: " + available + "\n");
+            }
+        }
+
+        if (!anyAvailable) {
+            System.out.println("Sorry! No rooms are currently available.");
+        }
+    }
+}
+
+/**
+ * RoomInventory class encapsulates availability data and operations.
+ * Only read/write methods affect inventory.
+ */
+class RoomInventory {
+
+    private Map<String, Integer> inventory;
+
+    public RoomInventory() {
+        inventory = new java.util.HashMap<>();
+    }
+
+    public void registerRoomType(String roomType, int availableCount) {
+        inventory.put(roomType, availableCount);
+    }
+
+    public int getAvailability(String roomType) {
+        return inventory.getOrDefault(roomType, 0);
+    }
+
+    public boolean bookRoom(String roomType) {
+        int available = inventory.getOrDefault(roomType, 0);
+        if (available > 0) {
+            inventory.put(roomType, available - 1);
+            return true;
+        }
+        return false;
+    }
+}
+
+/**
+ * Abstract Room class defining common attributes
+ */
+abstract class Room {
+    private int numberOfBeds;
+    private int size; // in square meters
+    private double price;
+
+    public Room(int numberOfBeds, int size, double price) {
+        this.numberOfBeds = numberOfBeds;
+        this.size = size;
+        this.price = price;
+    }
+
+    public int getNumberOfBeds() { return numberOfBeds; }
+    public int getSize() { return size; }
+    public double getPrice() { return price; }
+
+    public abstract String getRoomType();
+}
+
+class SingleRoom extends Room {
+    public SingleRoom() { super(1, 20, 50.0); }
+    public String getRoomType() { return "Single Room"; }
+}
+
+class DoubleRoom extends Room {
+    public DoubleRoom() { super(2, 30, 80.0); }
+    public String getRoomType() { return "Double Room"; }
+}
+
+class SuiteRoom extends Room {
+    public SuiteRoom() { super(3, 50, 150.0); }
+    public String getRoomType() { return "Suite Room"; }
+}
